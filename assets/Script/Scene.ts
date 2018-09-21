@@ -25,7 +25,6 @@ export default class Scene extends cc.Component {
     objects: cc.Node;
     inited: boolean = false;
     spawnObjects: cc.Node[] = [];
-    startBtn: cc.Button;
 
     // LIFE-CYCLE CALLBACKS:
 
@@ -37,8 +36,6 @@ export default class Scene extends cc.Component {
         // pm.debugDrawFlags = 5;
         this.objects = this.node.getChildByName("Objects");
 
-        this.startBtn = this.node.getChildByName("StartButton").getComponent(cc.Button);
-        this.startBtn.node.on("click", this.onClick, this);
     }
 
     onDestroy() {
@@ -113,7 +110,7 @@ export default class Scene extends cc.Component {
                 GameManager.instance.snakeGrowup(1);
                 break;
             case cc.macro.KEY.d:
-                GameManager.instance.killBall();
+                GameManager.instance.setInvincible();
                 break;
             case cc.macro.KEY.c:
                 GameManager.instance.snake.mainPlayer.node.position = cc.v2(0, GameManager.instance.snake.mainPlayer.node.y + 20);
@@ -124,7 +121,7 @@ export default class Scene extends cc.Component {
         }
     }
     
-    onClick() {
+    onStartClick() {
         if (ObjectPool.instance.inited) {
             // this.initColumns();
             this.createSnake();
@@ -132,6 +129,5 @@ export default class Scene extends cc.Component {
             GameManager.instance.spawnManager.spawnFirstWall();
             GameManager.instance.gameStart();
         }
-        this.startBtn.node.destroy();
     }
 }

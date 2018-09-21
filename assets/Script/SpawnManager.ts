@@ -41,18 +41,19 @@ export default class SpawnManager extends cc.Component {
     intervalBallProbability = 0.1;
     maxBallValue = 5;
     minBallValue = 1;
-    maxBlockValue = 20;
+    maxBlockValue = 40;
     minBlockValue = 1;
     minBarrageBlockValueFactor = 0.5;
     minFirstAndLastBlockLineValueFactor = 0.25;
 
 
     column = 5;
-    fullWall = 3;
-    spawnObjects: cc.Node[] = [];
+    fullWall = 3;//每隔几波方块后，刷一道满方块
+    spawnObjects: cc.Node[] = [];//所有刷的物体
     objects: cc.Node;
     background: cc.Node;
     windowTop: number;
+
 
 
     onLoad() {
@@ -68,11 +69,12 @@ export default class SpawnManager extends cc.Component {
 
         for (let i = 0; i < this.spawnObjects.length; i++) {
             if (this.spawnObjects[i] != null && this.spawnObjects[i].isValid) {
-                if (this.spawnObjects[i].y < this.background.y - 1000) {
+                if (this.spawnObjects[i].y < this.background.y - 1000 && this.spawnObjects[i].active == true) {
                     let pool = this.spawnObjects[i].getComponent(PoolItem);
                     if (pool) {
-                        console.log("return:  parent is   ", this.spawnObjects[i].parent, "   pos is ", this.spawnObjects[i].y);
-                        pool.returnPool();
+                        if (!pool.inpool) {
+                            pool.returnPool();
+                        }
                     }
                     else {
                         this.spawnObjects[i].destroy();
@@ -91,38 +93,20 @@ export default class SpawnManager extends cc.Component {
     }
 
     spawnFirstWall() {
-        //第一道墙
-        this.windowTop = this.background.y + 500;
+        //第一道墙,生成一道满墙，和前面两个食物
+        this.windowTop = this.background.y + 1000;
         for (let i = 0; i < this.column; i++) {
-            this.spawnStone(cc.v2(-150.5 + 75 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
+            this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
         }
 
-        this.spawnFood(cc.v2(-150.5 + 75 * this.getRandomInt(0, 4), this.windowTop - 70), this.getRandomInt(1, 3));
-        this.spawnFood(cc.v2(-150.5 + 75 * this.getRandomInt(0, 4), this.windowTop - 140), this.getRandomInt(2, 5));
+        this.spawnFood(cc.v2(-300 + 150 * this.getRandomInt(0, 4), this.windowTop - 150), this.getRandomInt(1, 3));
+        this.spawnFood(cc.v2(-300 + 150 * this.getRandomInt(0, 4), this.windowTop - 300), this.getRandomInt(2, 5));
 
-        let ob: cc.Node = this.createObjcet("checkwall", cc.v2(0, this.windowTop));
-        let fb = ob.addComponent(CheckWall);
-
-
-        //第二道
-        this.windowTop = this.windowTop + 140;
-        for (let i = 0; i < this.column; i++) {
-            let createBlock = false;
-            let r = this.getRandomInt(0, 2);
-            if (r == 0) {
-                createBlock = true;
-            }
-            if (createBlock) {
-                this.spawnStone(cc.v2(-150.5 + 75 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
-            }
-        }
-
-        ob = this.createObjcet("checkwall", cc.v2(0, this.windowTop));
-        fb = ob.addComponent(CheckWall);
+        this.spawnCheckWall(cc.v2(0, this.windowTop));
 
 
-        //第三道
-        this.windowTop = this.windowTop + 140;
+        //第二道，随机墙
+        this.windowTop = this.windowTop + 300;
         for (let i = 0; i < this.column; i++) {
             let createBlock = false;
             let r = this.getRandomInt(0, 2);
@@ -130,12 +114,42 @@ export default class SpawnManager extends cc.Component {
                 createBlock = true;
             }
             if (createBlock) {
-                this.spawnStone(cc.v2(-150.5 + 75 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
+                this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
             }
         }
 
-        ob = this.createObjcet("checkwall", cc.v2(0, this.windowTop));
-        fb = ob.addComponent(CheckWall);
+        this.spawnCheckWall(cc.v2(0, this.windowTop));
+
+
+        //第三道，随机墙
+        this.windowTop = this.windowTop + 300;
+        for (let i = 0; i < this.column; i++) {
+            let createBlock = false;
+            let r = this.getRandomInt(0, 2);
+            if (r == 0) {
+                createBlock = true;
+            }
+            if (createBlock) {
+                this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
+            }
+        }
+
+        this.spawnCheckWall(cc.v2(0, this.windowTop));
+
+        //第四道，随机墙
+        this.windowTop = this.windowTop + 300;
+        for (let i = 0; i < this.column; i++) {
+            let createBlock = false;
+            let r = this.getRandomInt(0, 2);
+            if (r == 0) {
+                createBlock = true;
+            }
+            if (createBlock) {
+                this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop), Math.ceil(this.getRandomInt(1, 2)));
+            }
+        }
+
+        this.spawnCheckWall(cc.v2(0, this.windowTop));
     }
 
     spawnWall() {
@@ -148,14 +162,14 @@ export default class SpawnManager extends cc.Component {
             let r = this.getRandomInt(0, 2);
             if (r == 0) {
                 let r = this.getRandomInt(1, 3);
-                let ob = this.spawnRail(cc.v2(-112.5 + 75 * i, this.windowTop + 35));
+                let ob = this.spawnRail(cc.v2(-225 + 150 * i, this.windowTop + 75));
                 ob.scaleY = r;
                 if (maxRail < r) {
                     maxRail = r;
                 }
             }
         }
-        this.windowTop = this.windowTop + 70 * (maxRail + 1);
+        this.windowTop = this.windowTop + 150 * (maxRail + 1);
         let lessIndex = this.getRandomInt(0, 4);
         for (let i = 0; i < this.column; i++) {
             let createBlock = false;
@@ -168,25 +182,29 @@ export default class SpawnManager extends cc.Component {
             if (createBlock || wallLine) {
                 num++;
                 if (lessIndex == i) {
-                    this.spawnStone(cc.v2(-150.5 + 75 * i, this.windowTop), this.getRandomInt(1, 5));
+
+                    this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop), this.getRandomInt(Math.round(GameManager.instance.snake.body.length * 0.5), GameManager.instance.snake.body.length));
                 } else {
-                    this.spawnStone(cc.v2(-150.5 + 75 * i, this.windowTop));
+                    this.spawnStone(cc.v2(-300 + 150 * i, this.windowTop));
                 }
             }
         }
 
         if (num == 0) {
             let index = this.getRandomInt(0, 4);
-            this.spawnStone(cc.v2(-150.5 + 75 * index, this.windowTop));
+            this.spawnStone(cc.v2(-300 + 150 * index, this.windowTop));
         }
 
-        let ob: cc.Node = this.createObjcet("checkwall", cc.v2(0, this.windowTop));
-        let fb = ob.addComponent(CheckWall);
+        this.spawnCheckWall(cc.v2(0, this.windowTop));
 
         let r = this.getRandomInt(0, 1);
+        let r2 = this.getRandomInt(1, 10);
         if (r == 1 || wallLine) {
-            this.spawnFood(cc.v2(-150.5 + 75 * this.getRandomInt(0, 4), this.windowTop - 70));
+            this.spawnFood(cc.v2(-300 + 150 * this.getRandomInt(0, 4), this.windowTop - 150));
         }
+        // else if (r2 == 1) {
+        //     this.spawnDoubleBuff(cc.v2(-300 + 150 * this.getRandomInt(0, 4), this.windowTop - 150));
+        // }
 
         this.fullWall--;
         if (wallLine) {
@@ -195,17 +213,35 @@ export default class SpawnManager extends cc.Component {
     }
 
     spawnStone(pos: cc.Vec2, num?: number) {
-        let ob: cc.Node = this.createObjcet("stone", pos);
-        let fb = ob.addComponent(Wall);
+
+        let i = this.getRandomInt(1, 20);
+        let ob;
+        let fb;
+        if (i == 5) {
+            ob = this.getObjcet("starstone", pos);
+            fb = ob.getComponent(Wall);
+            fb.isStar = true;
+            fb.poolName = "starstone";
+        }
+        else {
+            ob = this.getObjcet("stone", pos);
+            fb = ob.getComponent(Wall);
+            fb.poolName = "stone";
+        }
+
+        fb.inpool = false;
+        let hp = GameManager.instance.snake.body.length;
         if (num == undefined) {
-            // let hp = GameManager.instance.snake.body.length;
-            // let maxNum = hp * 0.5;
+            let maxNum = hp * 2;
             // fb.num = Math.ceil(Math.random() * maxNum);
-            fb.num = this.getRandomInt(1, 40);
+            maxNum = Math.max(maxNum, this.maxBlockValue);
+            fb.num = this.getRandomInt(1, maxNum);
         }
         else {
             fb.num = num;
         }
+        fb.reinit();
+
     }
 
     spawnFood(pos: cc.Vec2, num?: number) {
@@ -223,14 +259,36 @@ export default class SpawnManager extends cc.Component {
     }
 
     spawnRail(pos: cc.Vec2) {
-        let ob: cc.Node = this.createObjcet("rail", pos);
+        let ob: cc.Node = this.getObjcet("rail", pos);
+        let fb = ob.getComponent(PoolItem);
+        fb.inpool = false;
+        fb.poolName = "rail";
         return ob;
     }
 
     spawnFX(pos: cc.Vec2) {
-        let ob: cc.Node = this.createObjcet("ballFX", pos);
-        ob.active = true;
+        // let ob: cc.Node = this.createObjcet("ballFX", pos);
+        let ob: cc.Node = this.getObjcet("ballFX", pos);
         ob.getComponent(cc.ParticleSystem).resetSystem();
+        let fb = ob.getComponent(PoolItem);
+        fb.inpool = false;
+        fb.poolName = "ballFX";
+    }
+
+    spawnCheckWall(pos: cc.Vec2) {
+        // let ob: cc.Node = this.createObjcet("ballFX", pos);
+        let ob: cc.Node = this.getObjcet("checkwall", pos);
+        let fb = ob.getComponent(PoolItem);
+        fb.inpool = false;
+        fb.poolName = "checkwall";
+    }
+
+    spawnDoubleBuff(pos: cc.Vec2) {
+        // let ob: cc.Node = this.createObjcet("ballFX", pos);
+        let ob: cc.Node = this.getObjcet("doubleFood", pos);
+        let fb = ob.getComponent(PoolItem);
+        fb.inpool = false;
+        fb.poolName = "doubleFood";
     }
 
     createObjcet(name: string, pos: cc.Vec2): cc.Node {
@@ -241,20 +299,24 @@ export default class SpawnManager extends cc.Component {
         return ob;
     }
 
+
+
     getObjcet(name: string, pos: cc.Vec2): cc.Node {
         let ob: cc.Node = ObjectPool.instance.getObject(name);
         let r = this.spawnObjects.filter(x => x.uuid == ob.uuid);
         if (r.length == 0) {
             this.spawnObjects.push(ob);
         }
-        ob.parent = this.objects;
-        ob.runAction(cc.moveTo(0, pos));
+        if (ob.parent != this.objects) {
+            ob.parent = this.objects;
+        }
+        ob.runAction(cc.sequence(cc.show(),cc.moveTo(0, pos)));
         return ob;
     }
 
     getRandomInt(min: number, max: number): number {
-        var Range = max - min;
-        var Rand = Math.random();
+        let Range = max - min;
+        let Rand = Math.random();
         return (min + Math.round(Rand * Range));
     }
 

@@ -34,9 +34,9 @@ export default class BallMovement extends cc.Component {
         let x = GameManager.instance.touchCurrentPos.x - GameManager.instance.touchPreviousPos.x;
         // console.log(this.touchCurrentPos.x, "---", this.touchPreviousPos.x)
         if (x != 0) {
-            if (Math.abs(x) < 2)
+            if (Math.abs(x) < 1)
                 x = 0;
-            this.rigidbody.linearVelocity = cc.v2(x * 50, GameManager.instance.speed);
+            this.rigidbody.linearVelocity = cc.v2(x * 100, GameManager.instance.speed);
             GameManager.instance.touchPreviousPos = GameManager.instance.touchCurrentPos;
         }
         else {

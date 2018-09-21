@@ -1,4 +1,5 @@
 import GameManager from "./GameManager";
+import PoolItem from "./PoolItem";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -13,7 +14,7 @@ import GameManager from "./GameManager";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class CheckWall extends cc.Component {
+export default class CheckWall extends PoolItem {
 
     
     
@@ -28,6 +29,7 @@ export default class CheckWall extends cc.Component {
 
     onBeginContact(contact: cc.PhysicsContact, self: cc.PhysicsCollider, other: cc.PhysicsCollider) {
         GameManager.instance.spawnManager.startSpawn();
-        this.node.destroy();
+        GameManager.instance.lastHp = GameManager.instance.snake.hp;
+        this.returnPool();
     }
 }

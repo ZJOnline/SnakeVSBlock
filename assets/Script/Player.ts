@@ -11,7 +11,7 @@ import BallMovement from "./BallMovement";
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Player extends cc.Component {
@@ -27,6 +27,7 @@ export default class Player extends cc.Component {
     col: cc.PhysicsCircleCollider;
 
 
+
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
@@ -36,7 +37,7 @@ export default class Player extends cc.Component {
     }
 
     start() {
-        
+
     }
 
     update(dt) {
@@ -49,7 +50,7 @@ export default class Player extends cc.Component {
     }
 
     onDestroy() {
-        GameManager.instance.spawnManager.spawnFX(this.node.position.add(cc.v2(0,20)));
+        GameManager.instance.spawnManager.spawnFX(this.node.position.add(cc.v2(0, 20)));
     }
 
     setHead() {
@@ -58,12 +59,16 @@ export default class Player extends cc.Component {
         this.node.group = "head";
         this.movement.enabled = true;
         this.col.enabled = true;
+        
+        if (GameManager.instance.inDouble) {
+            this.node.scale = 2;
+        }
     }
 
     setSpeed() {
         this.rigidbody.linearVelocity = cc.v2(this.rigidbody.linearVelocity.x, GameManager.instance.speed);
     }
-    
+
     hit() {
         GameManager.instance.snake.hit2(this);
         // this.node.destroy();
@@ -72,4 +77,9 @@ export default class Player extends cc.Component {
     canHit() {
         return (GameManager.instance.canHit() && GameManager.instance.snake.canHit(this));
     }
+
+    isInvincible() {
+        return GameManager.instance.invincible;
+    }
+
 }

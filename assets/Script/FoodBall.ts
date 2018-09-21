@@ -23,7 +23,6 @@ export default class FoodBall extends PoolItem {
     // onLoad () {}
 
     start() {
-        super.start();
         this.label = this.node.getChildByName("label").getComponent(cc.Label);
         this.label.string = this.num.toString();
     }

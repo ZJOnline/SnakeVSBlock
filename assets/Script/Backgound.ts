@@ -33,6 +33,8 @@ export default class Backgound extends cc.Component {
         this.offset_bg = this.snake_node.y - this.node.y;
         this.offset_camera = this.snake_node.y - this.camera.y;
         this.offset_score = this.camera.y - this.scoreNode.y;
+
+        // console.log("屏幕高度：",screen.height);
     }
 
     update(dt) {

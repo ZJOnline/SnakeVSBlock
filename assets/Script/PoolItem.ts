@@ -19,25 +19,12 @@ export default class PoolItem extends cc.Component {
     inpool = true;
     background: cc.Node;
 
-    start() {
-        this.background = cc.find("Canvas/background");
-    }
-
-    update() {
-        if (this.node.y < this.background.y - 1000) { 
-            // this.returnPool();
-        }
-    }
 
     returnPool() {
-        // this.node.position = cc.v2(2000, 2000);
         if (!this.inpool) {
-            this.node.runAction(cc.moveTo(0, cc.v2(2000, 2000)));
+            this.node.runAction(cc.sequence(cc.moveTo(0, cc.v2(2000, 2000)), cc.hide()));
             ObjectPool.instance.pool[this.poolName].push(this.node);
             this.inpool = true;
         }
-        // ObjectPool.instance.objpool[this.poolName].put(this.node);
-        // this.node.removeComponent(PoolItem);
-        // this.destroy();
     }
 }

@@ -24,8 +24,8 @@ export default class Snake extends cc.Component {
     body: Player[] = [];
     startCount: number = 5;
     canvas: cc.Node;
-    space: number = 20;
-    step: number = 2;
+    space: number = 30;
+    step: number = 3;
     pathPoints: cc.Vec2[] = [];
     hp: number = 0;
     originPos: cc.Vec2;
@@ -40,7 +40,24 @@ export default class Snake extends cc.Component {
     }
 
     restart() {
+        this.clearSnake();
+        // this.initSnake();
+        this.scheduleOnce(() => {
+            this.initSnake();
+        });
+    }
+
+    clearSnake() {
         this.node.position = this.originPos;
+        for (let i = 0; i < this.body.length; i++) {
+            this.body[i].destroy();
+        }
+        this.body = [];
+        this.mainPlayer = null;
+        this.pathPoints = [];
+    }
+
+    rebirth(num: number) {
         for (let i = 0; i < this.body.length; i++) {
             this.body[i].destroy();
         }
@@ -49,7 +66,11 @@ export default class Snake extends cc.Component {
         this.pathPoints = [];
         // this.initSnake();
         this.scheduleOnce(() => {
-            this.initSnake();
+
+            this.createBalls(num);
+            this.hp = num;
+            this.num_text.string = this.hp.toString();
+            this.num_text.enabled = true;
         });
     }
 
@@ -270,7 +291,7 @@ export default class Snake extends cc.Component {
         this.body[0].setHead();
         this.mainPlayer = this.body[0];
 
-        
+
         this.hp--;
         this.num_text.string = this.hp.toString();
         head.node.destroy();
@@ -281,5 +302,40 @@ export default class Snake extends cc.Component {
             return false;
         }
         return true;
+    }
+
+    changeColor(start: boolean) {
+        if (start) {
+            this.changeColorStart();
+            GameManager.instance.speed = 1000;
+        }
+        else {
+            this.stopChangeColor();
+            GameManager.instance.speed = GameManager.instance.speed_back;
+        }
+    }
+
+    changeColorStart() {
+        this.schedule(this.changeColorAction1, 0.5);
+        this.schedule(this.changeColorAction2, 0.5, cc.macro.REPEAT_FOREVER, 0.25);
+    }
+
+    changeColorAction1 = () => {
+        for (let i = 0; i < this.body.length; i++) {
+            this.body[i].node.color = new cc.Color(17,206,253);
+        }
+    }
+    changeColorAction2 = () => {
+        for (let i = 0; i < this.body.length; i++) {
+            this.body[i].node.color = new cc.Color(255,51,181);
+        }
+    }
+
+    stopChangeColor() {
+        this.unschedule(this.changeColorAction1);
+        this.unschedule(this.changeColorAction2);
+        for (let i = 0; i < this.body.length; i++) {
+            this.body[i].node.color = new cc.Color(255,220,9);
+        }
     }
 }
